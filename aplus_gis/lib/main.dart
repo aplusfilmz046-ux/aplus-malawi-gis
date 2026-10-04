@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:convert';
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
@@ -43,9 +45,10 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
   bool _isSending = false;
   String _statusMessage = "READY FOR FIELD CAPTURE";
 
-  final String _tunnelUrl = "https://ab566cad61eac672-137-115-5-18.serveousercontent.com";
+  final String apiUrl = "https://aplus-malawi-gis.onrender.com";
 
   late AnimationController _marqueeController;
+  late StreamSubscription<List<ConnectivityResult>> _connectivitySubscription;
 
   @override
   void initState() {
@@ -54,11 +57,21 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
       duration: const Duration(seconds: 14),
       vsync: this,
     )..repeat();
+
+    // Listen in real-time for network connection restoration
+    _connectivitySubscription = Connectivity().onConnectivityChanged.listen((List<ConnectivityResult> results) {
+      if (!results.contains(ConnectivityResult.none)) {
+        _syncOfflineQueueToServer();
+      }
+    });
+
+    // Initial check on startup
     _syncOfflineQueueToServer();
   }
 
   @override
   void dispose() {
+    _connectivitySubscription.cancel();
     _marqueeController.dispose();
     _nameController.dispose();
     _landmarkController.dispose();
@@ -148,7 +161,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
       _statusMessage = "TRANSMITTING TO SERVER...";
     });
 
-    final url = Uri.parse('$_tunnelUrl/api/save_node');
+    final url = Uri.parse('$apiUrl/api/save_node');
 
     final Map<String, dynamic> payload = {
       "name": _nameController.text.trim(),
@@ -157,12 +170,12 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
       "longitude": _longitude,
     };
 
-    try {
+  try {
       final response = await http.post(
         url,
         headers: {"Content-Type": "application/json"},
         body: jsonEncode(payload),
-      ).timeout(const Duration(seconds: 10));
+      ).timeout(const Duration(seconds: 45));
 
       setState(() {
         _isSending = false;
@@ -170,15 +183,27 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
       });
 
       if (response.statusCode == 200 || response.statusCode == 201) {
-        _showServerResponseDialog("Success!", "Data sent directly to the central server!");
+        _showServerResponseDialog("Success!", "Data sent directly to the central cloud server!");
         _nameController.clear();
         _landmarkController.clear();
         _syncOfflineQueueToServer();
+      } else if (response.statusCode == 409) {
+        // --- NEW: Handle Proximity Conflict explicitly ---
+        final errorData = jsonDecode(response.body);
+        final errorMessage = errorData['message'] ?? "Spatial conflict detected.";
+        
+        setState(() {
+          _statusMessage = "REGISTRATION BLOCKED: TOO CLOSE TO EXISTING PIN";
+        });
+        
+        _showServerResponseDialog(
+          "Spatial Conflict (15m Rule)", 
+          "$errorMessage\n\nPlease move further away from the existing structure before capturing a new pin."
+        );
       } else {
         _handleOfflineFallback(payload, "Server rejected payload (Code ${response.statusCode})");
       }
     } catch (e) {
-      // Shows exact exception details for troubleshooting
       _handleOfflineFallback(payload, "Exception: $e");
     }
   }
@@ -191,8 +216,8 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
     });
 
     _showServerResponseDialog(
-        "Saved Offline Safely",
-        "$reason. Your pin has been stored securely on your phone and will sync automatically when connection returns."
+      "Saved Offline Safely",
+      "$reason. Your pin has been stored securely on your phone and will sync automatically when connection returns."
     );
 
     _nameController.clear();
@@ -205,7 +230,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
 
     if (offlineQueue.isEmpty) return;
 
-    final url = Uri.parse('$_tunnelUrl/api/save_node');
+    final url = Uri.parse('$apiUrl/api/save_node');
     List<String> remainingQueue = [];
 
     for (String item in offlineQueue) {
@@ -215,7 +240,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
           url,
           headers: {"Content-Type": "application/json"},
           body: jsonEncode(payload),
-        ).timeout(const Duration(seconds: 5));
+        ).timeout(const Duration(seconds: 15));
 
         if (response.statusCode != 200 && response.statusCode != 201) {
           remainingQueue.add(item);
@@ -275,7 +300,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("A+ MALAWI GIS COIL", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
+        title: const Text("A+ MALAWI GIS", style: TextStyle(fontWeight: FontWeight.bold, fontSize: 17)),
         backgroundColor: const Color(0xFF008751),
         centerTitle: true,
         toolbarHeight: 46,
@@ -308,7 +333,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
                                 return FractionalTranslation(
                                   translation: Offset(-_marqueeController.value, 0),
                                   child: const Text(
-                                    "A+ MALAWI GIS • TIZIWANE KOMWE TIKUKHALA • A+ MALAWI GIS • TIZIWANE KOMWE TIKUKHALA •",
+                                    "A+ • TIZIWANE KOMWE TIKUKHALA • TIFIKILANE MOSAVUTA • MALAWI WAMAKONO •",
                                     style: TextStyle(color: Colors.redAccent, fontSize: 11, fontWeight: FontWeight.bold),
                                   ),
                                 );
@@ -322,7 +347,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
                       child: Container(
                         color: const Color(0xFFCE1126),
                         child: const Center(
-                          child: Text("REGISTER FOR EASLY SERVICE DELIVARY", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
+                          child: Text("REGISTER FOR EASY SERVICE DELIVARY", style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold)),
                         ),
                       ),
                     ),
@@ -355,7 +380,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
               TextField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: "Structure / Population Place Name",
+                  labelText: "Structure Name/Dzina lapamalopo",
                   border: OutlineInputBorder(),
                   isDense: true,
                   contentPadding: EdgeInsets.all(10),
@@ -365,7 +390,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
               TextField(
                 controller: _landmarkController,
                 decoration: const InputDecoration(
-                  labelText: "Visual Landmark Clues / Anchors",
+                  labelText: "Visual Clues / chidzindikilo",
                   border: OutlineInputBorder(),
                   isDense: true,
                   contentPadding: EdgeInsets.all(10),
@@ -405,7 +430,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
               ElevatedButton.icon(
                 onPressed: _isCapturing ? null : _captureCurrentLocation,
                 icon: const Icon(Icons.gps_fixed, size: 16),
-                label: const Text("CAPTURE LIVE GPS PIN", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                label: const Text("CAPTURE/TENGANI GPS", style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFCE1126),
                   foregroundColor: Colors.white,
@@ -416,7 +441,7 @@ class _GisHomePageState extends State<GisHomePage> with SingleTickerProviderStat
               ElevatedButton.icon(
                 onPressed: _isSending ? null : _submitDataToServer,
                 icon: const Icon(Icons.cloud_upload, size: 16),
-                label: Text(_isSending ? "TRANSMITTING..." : "TRANSMIT PIN TO SERVER", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
+                label: Text(_isSending ? "TRANSMITTING..." : "TRANSMIT /TUMIZANI GPS", style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold)),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF008751),
                   foregroundColor: Colors.white,

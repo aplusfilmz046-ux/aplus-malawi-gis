@@ -7,17 +7,14 @@ version: 2.5.0+1
 environment:
   sdk: '>=3.1.0 <4.0.0'
 
+
 dependencies:
   flutter:
     sdk: flutter
   http: ^1.2.0
   geolocator: ^13.0.0
-  shared_preferences: ^2.5.3  # <-- Updated to fix Kotlin build caches
-
-dev_dependencies:
-  flutter_test:
-    sdk: flutter
-  flutter_launcher_icons: ^0.14.4
+  shared_preferences: ^2.5.3
+  connectivity_plus: ^6.0.3
 
 # Launcher Icon Configuration
 flutter_launcher_icons:
