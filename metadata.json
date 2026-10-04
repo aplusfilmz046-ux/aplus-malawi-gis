@@ -1,0 +1,376 @@
+{
+  "feature_count": 29810,
+  "geometry_types": {
+    "POLYGON": 27010,
+    "POINT": 2797,
+    "MULTIPOLYGON": 3
+  },
+  "bbox": [
+    32.6592649,
+    -17.1324168,
+    35.8794238,
+    -9.5072383
+  ],
+  "columns": [
+    {
+      "name": "id",
+      "type": "VARCHAR",
+      "null_count": 0,
+      "null_percent": 0.0,
+      "distinct_count": 29810,
+      "top_values": []
+    },
+    {
+      "name": "name",
+      "type": "VARCHAR",
+      "null_count": 27114,
+      "null_percent": 90.96,
+      "distinct_count": 2432,
+      "top_values": []
+    },
+    {
+      "name": "name_en",
+      "type": "VARCHAR",
+      "null_count": 29807,
+      "null_percent": 99.99,
+      "distinct_count": 3,
+      "top_values": [
+        {
+          "value": "Lilongwe",
+          "count": 1
+        },
+        {
+          "value": "Mwenyedawa",
+          "count": 1
+        },
+        {
+          "value": "Mzuzu",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "name_ny",
+      "type": "VARCHAR",
+      "null_count": 29809,
+      "null_percent": 100.0,
+      "distinct_count": 1,
+      "top_values": [
+        {
+          "value": "Mtunthama",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "place",
+      "type": "VARCHAR",
+      "null_count": 26857,
+      "null_percent": 90.09,
+      "distinct_count": 6,
+      "top_values": [
+        {
+          "value": "village",
+          "count": 2628
+        },
+        {
+          "value": "hamlet",
+          "count": 234
+        },
+        {
+          "value": "town",
+          "count": 73
+        },
+        {
+          "value": "isolated_dwelling",
+          "count": 11
+        },
+        {
+          "value": "city",
+          "count": 5
+        }
+      ]
+    },
+    {
+      "name": "landuse",
+      "type": "VARCHAR",
+      "null_count": 2869,
+      "null_percent": 9.62,
+      "distinct_count": 1,
+      "top_values": [
+        {
+          "value": "residential",
+          "count": 26941
+        }
+      ]
+    },
+    {
+      "name": "population",
+      "type": "VARCHAR",
+      "null_count": 29787,
+      "null_percent": 99.92,
+      "distinct_count": 21,
+      "top_values": [
+        {
+          "value": "1500",
+          "count": 2
+        },
+        {
+          "value": "600",
+          "count": 2
+        },
+        {
+          "value": "28011",
+          "count": 1
+        },
+        {
+          "value": "51429",
+          "count": 1
+        },
+        {
+          "value": "26224",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "is_in",
+      "type": "VARCHAR",
+      "null_count": 29282,
+      "null_percent": 98.23,
+      "distinct_count": 3,
+      "top_values": [
+        {
+          "value": "Malawi",
+          "count": 525
+        },
+        {
+          "value": "malawi",
+          "count": 2
+        },
+        {
+          "value": "undefined",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "name": "source",
+      "type": "VARCHAR",
+      "null_count": 29810,
+      "null_percent": 100.0,
+      "distinct_count": 0,
+      "top_values": []
+    },
+    {
+      "name": "adm0_pcode",
+      "type": "VARCHAR",
+      "null_count": 0,
+      "null_percent": 0.0,
+      "distinct_count": 1,
+      "top_values": [
+        {
+          "value": "MWI",
+          "count": 29810
+        }
+      ]
+    },
+    {
+      "name": "adm0_name",
+      "type": "VARCHAR",
+      "null_count": 0,
+      "null_percent": 0.0,
+      "distinct_count": 1,
+      "top_values": [
+        {
+          "value": "Malawi",
+          "count": 29810
+        }
+      ]
+    },
+    {
+      "name": "adm1_pcode",
+      "type": "VARCHAR",
+      "null_count": 2,
+      "null_percent": 0.01,
+      "distinct_count": 3,
+      "top_values": [
+        {
+          "value": "MW3",
+          "count": 15768
+        },
+        {
+          "value": "MW2",
+          "count": 11738
+        },
+        {
+          "value": "MW1",
+          "count": 2302
+        }
+      ]
+    },
+    {
+      "name": "adm1_name",
+      "type": "VARCHAR",
+      "null_count": 2,
+      "null_percent": 0.01,
+      "distinct_count": 3,
+      "top_values": [
+        {
+          "value": "Southern",
+          "count": 15768
+        },
+        {
+          "value": "Central",
+          "count": 11738
+        },
+        {
+          "value": "Northern",
+          "count": 2302
+        }
+      ]
+    },
+    {
+      "name": "adm2_pcode",
+      "type": "VARCHAR",
+      "null_count": 2,
+      "null_percent": 0.01,
+      "distinct_count": 32,
+      "top_values": [
+        {
+          "value": "MW301",
+          "count": 6675
+        },
+        {
+          "value": "MW205",
+          "count": 3061
+        },
+        {
+          "value": "MW206",
+          "count": 2327
+        },
+        {
+          "value": "MW202",
+          "count": 2112
+        },
+        {
+          "value": "MW209",
+          "count": 1955
+        }
+      ]
+    },
+    {
+      "name": "adm2_name",
+      "type": "VARCHAR",
+      "null_count": 2,
+      "null_percent": 0.01,
+      "distinct_count": 32,
+      "top_values": [
+        {
+          "value": "Mangochi",
+          "count": 6675
+        },
+        {
+          "value": "Salima",
+          "count": 3061
+        },
+        {
+          "value": "Lilongwe",
+          "count": 2327
+        },
+        {
+          "value": "Nkhotakota",
+          "count": 2112
+        },
+        {
+          "value": "Ntcheu",
+          "count": 1955
+        }
+      ]
+    },
+    {
+      "name": "adm3_pcode",
+      "type": "VARCHAR",
+      "null_count": 2,
+      "null_percent": 0.01,
+      "distinct_count": 364,
+      "top_values": [
+        {
+          "value": "MW30104",
+          "count": 1308
+        },
+        {
+          "value": "MW30106",
+          "count": 1274
+        },
+        {
+          "value": "MW20201",
+          "count": 1048
+        },
+        {
+          "value": "MW20502",
+          "count": 886
+        },
+        {
+          "value": "MW30602",
+          "count": 836
+        }
+      ]
+    },
+    {
+      "name": "adm3_name",
+      "type": "VARCHAR",
+      "null_count": 2,
+      "null_percent": 0.01,
+      "distinct_count": 356,
+      "top_values": [
+        {
+          "value": "TA Nankumba",
+          "count": 1308
+        },
+        {
+          "value": "TA Mbwana Nyambi",
+          "count": 1274
+        },
+        {
+          "value": "TA Kanyenda",
+          "count": 1048
+        },
+        {
+          "value": "TA Karonga",
+          "count": 886
+        },
+        {
+          "value": "TA Nthache",
+          "count": 836
+        }
+      ]
+    },
+    {
+      "name": "adm4_pcode",
+      "type": "VARCHAR",
+      "null_count": 29810,
+      "null_percent": 100.0,
+      "distinct_count": 0,
+      "top_values": []
+    },
+    {
+      "name": "adm4_name",
+      "type": "VARCHAR",
+      "null_count": 29810,
+      "null_percent": 100.0,
+      "distinct_count": 0,
+      "top_values": []
+    },
+    {
+      "name": "name_latin",
+      "type": "VARCHAR",
+      "null_count": 27114,
+      "null_percent": 90.96,
+      "distinct_count": 2432,
+      "top_values": []
+    }
+  ],
+  "summary": "29,810 features. geometry types: 27,010 POLYGON, 2,797 POINT, 3 MULTIPOLYGON. 10 of 20 columns are >=50% null (name, name_en, name_ny, place, population, is_in, source, adm4_pcode, adm4_name, name_latin).",
+  "temporal": null
+}

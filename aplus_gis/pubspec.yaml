@@ -1,0 +1,36 @@
+name: aplus_gis
+description: "A premium production mobile frontend mapping sliced high-fidelity image assets seamlessly."
+publish_to: 'none'
+
+version: 2.5.0+1
+
+environment:
+  sdk: '>=3.1.0 <4.0.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  http: ^1.2.0
+  geolocator: ^13.0.0
+  shared_preferences: ^2.5.3  # <-- Updated to fix Kotlin build caches
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_launcher_icons: ^0.14.4
+
+# Launcher Icon Configuration
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/icon/app_icon.png"
+
+flutter:
+  # The following line ensures that the Material Icons font is
+  # included with your application, so that you can use the icons in
+  # the material Icons class.
+  uses-material-design: true
+
+  # Asset declaration
+  assets:
+    - assets/hero_bg.jpg

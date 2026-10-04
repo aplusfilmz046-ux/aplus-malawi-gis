@@ -1,0 +1,554 @@
+<!DOCTYPE html>
+<html lang="en" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>A+Malawi GIS Addressing Platform - Real Addresses. A Connected Malawi.</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Leaflet GIS CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        malawiRed: '#CE1126',
+                        malawiGreen: '#007A3D',
+                        malawiBlack: '#000000',
+                        malawiGold: '#FCD116',
+                        lakeBlue: '#00B4D8'
+                    },
+                    fontFamily: {
+                        sans: ['"Plus Jakarta Sans"', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Authentic Lake Malawi Natural Photography Background */
+        .hero-bg {
+            background: linear-gradient(to bottom, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,0.85) 100%), url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?q=80&w=1920&auto=format&fit=crop');
+            background-size: cover;
+            background-position: center;
+        }
+        .tricolor-stripe {
+            height: 6px;
+            background: linear-gradient(to right, #000000 33.33%, #CE1126 33.33%, #CE1126 66.66%, #007A3D 66.66%);
+        }
+        #map { height: 450px; border-radius: 1.5rem; z-index: 10; }
+
+        /* Moving Marquee Ticker */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            animation: marquee 22s linear infinite;
+        }
+
+        /* Realistic Cloth Waving Wind Animation */
+        @keyframes clothWave {
+            0% { transform: perspective(400px) rotateY(0deg) skewY(0deg) scaleX(1); }
+            25% { transform: perspective(400px) rotateY(-10deg) skewY(3deg) scaleX(0.97); }
+            50% { transform: perspective(400px) rotateY(8deg) skewY(-3deg) scaleX(1.02); }
+            75% { transform: perspective(400px) rotateY(-6deg) skewY(1.5deg) scaleX(0.98); }
+            100% { transform: perspective(400px) rotateY(0deg) skewY(0deg) scaleX(1); }
+        }
+        .realistic-cloth-flag {
+            animation: clothWave 3.5s ease-in-out infinite;
+            transform-origin: left center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+            filter: drop-shadow(2px 5px 10px rgba(0,0,0,0.4));
+        }
+    </style>
+</head>
+<body class="bg-gray-50 text-gray-800 font-sans antialiased">
+
+    <!-- Malawi Flag Tricolor Top Bar -->
+    <div class="tricolor-stripe w-full"></div>
+
+    <!-- Navigation Bar -->
+    <nav class="sticky top-0 z-50 bg-white/95 backdrop-blur-md shadow-sm border-b border-gray-100">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-20 flex items-center justify-between">
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3">
+                <div class="w-12 h-12 rounded-full bg-gradient-to-tr from-malawiRed via-malawiGold to-malawiGreen flex items-center justify-center text-white shadow-lg shadow-red-600/20">
+                    <i class="fa-solid fa-location-dot text-xl"></i>
+                </div>
+                <div>
+                    <span class="text-2xl font-extrabold tracking-tight text-gray-900">A+<span class="text-malawiRed">Malawi</span></span>
+                    <span class="block text-[10px] font-bold tracking-widest text-malawiGreen uppercase">GIS Addressing Platform</span>
+                </div>
+            </div>
+
+            <!-- Nav Links -->
+            <div class="hidden md:flex items-center space-x-8 font-semibold text-sm text-gray-600">
+                <a href="#home" class="text-malawiRed hover:text-malawiRed transition">Home</a>
+                <a href="#register" class="hover:text-malawiRed transition">Register Address</a>
+                <a href="#explore" class="hover:text-malawiRed transition">Explore Map</a>
+                <a href="#services" class="hover:text-malawiRed transition">Services</a>
+                <a href="#about" class="hover:text-malawiRed transition">About</a>
+                <a href="#contact" class="hover:text-malawiRed transition">Contact</a>
+            </div>
+
+            <!-- Right Actions -->
+            <div class="flex items-center space-x-4">
+                <div class="hidden lg:flex items-center space-x-2 bg-emerald-50 px-3.5 py-1.5 rounded-full text-xs font-bold text-malawiGreen border border-emerald-200">
+                    <i class="fa-solid fa-gift"></i>
+                    <span>100% Free Service</span>
+                </div>
+                <a href="#register" class="bg-gradient-to-r from-malawiRed to-red-700 hover:from-red-700 hover:to-red-800 text-white font-bold px-6 py-2.5 rounded-full shadow-md shadow-red-600/20 transition transform hover:-translate-y-0.5 text-sm">
+                    <i class="fa-solid fa-user-plus mr-1.5"></i> Register Free
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- NDILIKUTI? MULIKUTI? Aplus Timanyane Banner (Placed right below header & above moving ticker) -->
+    <div class="bg-gradient-to-r from-black via-emerald-950 to-black py-6 border-b border-white/20 text-center relative z-40 shadow-xl">
+        <div class="max-w-7xl mx-auto px-4">
+            <h1 class="text-3xl sm:text-5xl lg:text-6xl font-black tracking-wider text-white uppercase drop-shadow-lg">
+                <span class="text-malawiGold">NDILIKUTI?</span> <span class="text-emerald-400">MULIKUTI?</span>
+            </h1>
+            <div class="mt-2 text-xl sm:text-2xl font-extrabold tracking-widest text-white uppercase drop-shadow">
+                Aplus <span class="text-malawiRed">Timanyane</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Animated Moving Welcome Ticker -->
+    <div class="w-full bg-black/80 backdrop-blur-md py-2.5 border-b border-white/20 overflow-hidden relative z-30">
+        <div class="whitespace-nowrap animate-marquee flex items-center space-x-12 text-sm font-extrabold text-malawiGold tracking-wider uppercase">
+            <span>🇲🇼 Welcome to Malawi — The Warm Heart of Africa 🇲🇼</span>
+            <span class="text-white">•</span>
+            <span>A+Malawi GIS Addressing Platform (100% Free National Service)</span>
+            <span class="text-white">•</span>
+            <span>Lilongwe, Blantyre, Mzuzu, Zomba & All 28 Districts</span>
+            <span class="text-white">•</span>
+            <span>Register Your Home, Business, Farm or Institution Today!</span>
+        </div>
+    </div>
+
+    <!-- Hero Section -->
+    <header id="home" class="hero-bg text-white py-16 lg:py-24 relative overflow-hidden">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+            
+            <div class="lg:col-span-7 space-y-6">
+                <div class="inline-flex items-center space-x-2 bg-black/50 backdrop-blur-md px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider border border-white/20 text-malawiGold">
+                    <span class="w-2.5 h-2.5 rounded-full bg-malawiGreen animate-pulse"></span>
+                    <span>Malawi's Free National Digital Address System</span>
+                </div>
+                <h2 class="text-4xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight drop-shadow-md">
+                    Your Place. <br>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-red-400 via-malawiGold to-green-400">Your Address.</span> <br>
+                    Your Identity.
+                </h2>
+                <p class="text-base sm:text-lg text-gray-200 max-w-xl font-normal leading-relaxed drop-shadow">
+                    The A+Malawi GIS Addressing Platform empowers every home, business, farm, and institution across all 28 districts with a precise digital coordinate and unique address code — completely free for all citizens.
+                </p>
+
+                <!-- Quick Search Bar -->
+                <div class="bg-black/60 backdrop-blur-lg p-2 rounded-2xl border border-white/30 max-w-lg flex items-center shadow-2xl">
+                    <div class="pl-4 text-malawiGold">
+                        <i class="fa-solid fa-magnifying-glass"></i>
+                    </div>
+                    <input type="text" id="heroSearchInput" placeholder="Search address code (e.g., MW-LL-135) or location..." class="w-full bg-transparent px-3 py-3 text-white placeholder-gray-300 focus:outline-none text-sm font-medium">
+                    <button onclick="performHeroSearch()" class="bg-malawiGreen hover:bg-emerald-700 text-white font-bold px-6 py-3 rounded-xl transition text-sm shadow-md">
+                        Search
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 pt-4 text-xs font-bold text-gray-200">
+                    <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-malawiGold"></i><span>Be Found Easily</span></div>
+                    <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-malawiGold"></i><span>Emergency Services</span></div>
+                    <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-malawiGold"></i><span>Support Agriculture</span></div>
+                    <div class="flex items-center space-x-2"><i class="fa-solid fa-circle-check text-malawiGold"></i><span>100% Free Forever</span></div>
+                </div>
+            </div>
+
+            <!-- Realistic Hanging & Waving Cloth Flag on Pole + Phone Mockup -->
+            <div class="lg:col-span-5 flex flex-col items-center justify-center space-y-6">
+                
+                <!-- Realistic Waving Cloth Flag Container -->
+                <div class="w-full max-w-sm bg-black/70 backdrop-blur-md p-6 rounded-3xl border border-white/20 flex items-center space-x-6 shadow-2xl">
+                    <!-- Flagpole -->
+                    <div class="w-3 h-48 bg-gradient-to-t from-gray-600 via-gray-300 to-gray-100 rounded-full shadow-2xl relative flex flex-col justify-between items-center py-1.5">
+                        <div class="w-5 h-5 rounded-full bg-malawiGold shadow-lg ring-2 ring-yellow-300/50"></div>
+                        <div class="w-4 h-4 rounded-full bg-gray-800"></div>
+                    </div>
+
+                    <!-- Realistic SVG Cloth Flag (Blowing in Wind) -->
+                    <div class="w-full realistic-cloth-flag">
+                        <svg viewBox="0 0 900 600" class="w-full h-auto rounded-xl shadow-2xl border border-white/30">
+                            <!-- Black Stripe -->
+                            <rect width="900" height="200" fill="#000000"/>
+                            <!-- Red Stripe -->
+                            <rect y="200" width="900" height="200" fill="#CE1126"/>
+                            <!-- Green Stripe -->
+                            <rect y="400" width="900" height="200" fill="#007A3D"/>
+                            
+                            <!-- Red Rising Sun with 31 Rays centered on Black Stripe -->
+                            <g transform="translate(450, 200)">
+                                <path d="M -90 0 A 90 90 0 0 1 90 0 Z" fill="#CE1126"/>
+                                <g stroke="#CE1126" stroke-width="5" stroke-linecap="round">
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(0)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(5.8)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(11.6)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(17.4)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(23.2)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(29)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(34.8)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(40.6)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(46.4)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(52.2)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(58)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(63.8)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(69.6)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(75.4)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(81.2)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(87)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-5.8)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-11.6)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-17.4)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-23.2)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-29)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-34.8)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-40.6)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-46.4)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-52.2)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-58)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-63.8)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-69.6)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-75.4)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-81.2)" />
+                                    <line x1="0" y1="0" x2="0" y2="-130" transform="rotate(-87)" />
+                                </g>
+                            </g>
+                        </svg>
+                        <div class="text-xs font-bold text-malawiGold mt-2 text-center tracking-wider">🇲🇼 The Warm Heart of Africa 🇲🇼</div>
+                    </div>
+                </div>
+
+                <!-- Phone Preview Card -->
+                <div class="relative w-full max-w-sm bg-gray-900 rounded-[2.5rem] p-4 shadow-2xl border-4 border-emerald-800">
+                    <div class="absolute top-6 left-1/2 transform -translate-x-1/2 w-28 h-4 bg-gray-800 rounded-full z-20"></div>
+                    <div class="bg-emerald-950 rounded-[2rem] overflow-hidden p-3 pt-6 text-white relative border border-emerald-500/30">
+                        <div class="flex justify-between items-center mb-3 px-2">
+                            <span class="text-xs font-bold text-malawiGold"><i class="fa-solid fa-satellite-dish mr-1"></i> A+Malawi GIS Live</span>
+                            <span class="text-[10px] bg-malawiRed px-2.5 py-0.5 rounded-full font-bold uppercase">Free Service</span>
+                        </div>
+                        <div class="bg-black/60 rounded-xl p-3.5 mb-3 border border-emerald-500/40">
+                            <div class="text-[11px] text-gray-400">Active Coordinates</div>
+                            <div class="text-sm font-extrabold text-emerald-400 font-mono">Lat: -13.9626° S, Lng: 33.7741° E</div>
+                            <div class="text-xs font-semibold text-white mt-1">📍 Capital Hill, Lilongwe, Malawi</div>
+                        </div>
+                        <div class="h-28 rounded-xl overflow-hidden relative bg-emerald-900 flex items-center justify-center border border-white/10">
+                            <div class="text-center p-3">
+                                <i class="fa-solid fa-map-location-dot text-3xl text-malawiGold mb-1 animate-bounce"></i>
+                                <p class="text-[11px] font-semibold text-white">Synced with SQLite Database</p>
+                            </div>
+                        </div>
+                        <div class="mt-3 text-center">
+                            <span class="text-[10px] text-malawiGold font-bold tracking-widest uppercase">One Map • One Malawi • One Address</span>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </header>
+
+    <!-- Categories Grid -->
+    <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 -mt-10 relative z-20">
+        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <div class="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-100 group">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-50 text-malawiGreen flex items-center justify-center text-xl mb-3 group-hover:bg-malawiGreen group-hover:text-white transition">
+                    <i class="fa-solid fa-house"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 text-sm">Homes</h3>
+                <p class="text-[11px] text-gray-500 mt-1">Your family, safer & connected</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-100 group">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-red-50 text-malawiRed flex items-center justify-center text-xl mb-3 group-hover:bg-malawiRed group-hover:text-white transition">
+                    <i class="fa-solid fa-store"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 text-sm">Businesses</h3>
+                <p class="text-[11px] text-gray-500 mt-1">Grow with real addresses</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-100 group">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-amber-50 text-amber-600 flex items-center justify-center text-xl mb-3 group-hover:bg-amber-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-tractor"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 text-sm">Farms</h3>
+                <p class="text-[11px] text-gray-500 mt-1">Agricultural logistics & markets</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-100 group">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center text-xl mb-3 group-hover:bg-blue-600 group-hover:text-white transition">
+                    <i class="fa-solid fa-graduation-cap"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 text-sm">Schools</h3>
+                <p class="text-[11px] text-gray-500 mt-1">Better planning & education</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-100 group">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center text-xl mb-3 group-hover:bg-emerald-700 group-hover:text-white transition">
+                    <i class="fa-solid fa-place-of-worship"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 text-sm">Churches</h3>
+                <p class="text-[11px] text-gray-500 mt-1">Reach communities easily</p>
+            </div>
+            <div class="bg-white rounded-2xl p-6 text-center shadow-lg hover:shadow-xl transition transform hover:-translate-y-1 border border-gray-100 group">
+                <div class="w-12 h-12 mx-auto rounded-xl bg-red-50 text-malawiRed flex items-center justify-center text-xl mb-3 group-hover:bg-malawiRed group-hover:text-white transition">
+                    <i class="fa-solid fa-hospital"></i>
+                </div>
+                <h3 class="font-extrabold text-gray-900 text-sm">Clinics</h3>
+                <p class="text-[11px] text-gray-500 mt-1">Faster emergency care</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Visual Banner Section -->
+    <section class="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl min-h-[320px] flex items-end p-8 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?q=80&w=1000&auto=format&fit=crop');">
+                <div class="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent"></div>
+                <div class="relative z-10 text-white">
+                    <span class="bg-malawiRed text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">Lake Malawi & Shores</span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold mt-3">The Lake of Stars & Coastal Communities</h3>
+                    <p class="text-xs sm:text-sm text-gray-200 mt-2">Connecting lakeshore villages, fishing communities, and vibrant local trade into one national GIS network.</p>
+                </div>
+            </div>
+            <div class="relative rounded-3xl overflow-hidden shadow-2xl min-h-[320px] flex items-end p-8 bg-cover bg-center" style="background-image: url('https://images.unsplash.com/photo-1516026672322-bc52d61a55d5?q=80&w=1000&auto=format&fit=crop');">
+                <div class="absolute inset-0 bg-gradient-to-t from-emerald-950/90 via-emerald-900/30 to-transparent"></div>
+                <div class="relative z-10 text-white">
+                    <span class="bg-malawiGreen text-white text-xs font-extrabold px-3 py-1 rounded-full uppercase tracking-wider">All 28 Districts</span>
+                    <h3 class="text-2xl sm:text-3xl font-extrabold mt-3">Empowering Citizens Across the Warm Heart of Africa</h3>
+                    <p class="text-xs sm:text-sm text-gray-200 mt-2">From Lilongwe to Blantyre, Mzuzu to Zomba, every Malawian home and business has a recognized address.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Interactive GIS Map Section -->
+    <section id="explore" class="py-16 bg-gray-100 border-y border-gray-200">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="text-center max-w-2xl mx-auto mb-10">
+                <span class="text-xs font-extrabold text-malawiGreen tracking-wider uppercase bg-emerald-100 px-3.5 py-1.5 rounded-full">Interactive GIS Map</span>
+                <h2 class="text-3xl font-extrabold text-gray-900 mt-3">Explore Malawi's Digital Map</h2>
+                <p class="text-gray-600 text-sm mt-2">Click anywhere on the map to select coordinates or view registered locations from your SQLite database.</p>
+            </div>
+            
+            <div class="bg-white p-4 rounded-3xl shadow-xl border border-gray-200">
+                <div id="map"></div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Register Address Form Section -->
+    <section id="register" class="py-20 max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <div class="bg-white rounded-3xl shadow-2xl border border-gray-100 overflow-hidden">
+            <div class="bg-gradient-to-r from-malawiBlack via-emerald-900 to-malawiGreen p-8 text-white flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+                <div>
+                    <span class="text-xs font-bold text-malawiGold tracking-widest uppercase">Secure Portal • 100% Free</span>
+                    <h2 class="text-2xl font-extrabold mt-1">Register Your Malawi Address</h2>
+                    <p class="text-xs text-gray-200 mt-1">Get your unique digital address code instantly stored in the national GIS database.</p>
+                </div>
+                <div class="bg-white/10 px-4 py-2 rounded-2xl border border-white/20 text-center">
+                    <span class="block text-[10px] uppercase font-bold text-malawiGold">Cost</span>
+                    <span class="text-lg font-extrabold text-white">FREE</span>
+                </div>
+            </div>
+
+            <form id="addressRegistrationForm" class="p-8 space-y-6">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <label class="block text-xs font-extrabold text-gray-700 uppercase mb-1">Full Name / Institution</label>
+                        <input type="text" id="fullName" required placeholder="e.g. Kondwani Banda" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-malawiGreen font-medium">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-gray-700 uppercase mb-1">Phone Number</label>
+                        <input type="tel" id="phone" required placeholder="+265 99 ... ..." class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-malawiGreen font-medium">
+                    </div>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div>
+                        <label class="block text-xs font-extrabold text-gray-700 uppercase mb-1">Address Type</label>
+                        <select id="addressType" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-malawiGreen font-medium">
+                            <option value="Home">Home / Residential</option>
+                            <option value="Business">Business / Shop</option>
+                            <option value="Farm">Farm / Agriculture</option>
+                            <option value="School">School / Institution</option>
+                            <option value="Clinic">Clinic / Hospital</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-gray-700 uppercase mb-1">Region / District</label>
+                        <select id="region" class="w-full bg-gray-50 border border-gray-300 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-malawiGreen font-medium">
+                            <option value="LL">Central Region (Lilongwe)</option>
+                            <option value="BL">Southern Region (Blantyre)</option>
+                            <option value="MZ">Northern Region (Mzuzu)</option>
+                            <option value="ZB">Eastern Region (Zomba)</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-extrabold text-gray-700 uppercase mb-1">Coordinates (Lat, Lng)</label>
+                        <input type="text" id="latLngInput" value="-13.9626, 33.7741" readonly class="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 text-sm text-gray-600 font-mono font-bold">
+                        <input type="hidden" id="lat" value="-13.9626">
+                        <input type="hidden" id="lng" value="33.7741">
+                    </div>
+                </div>
+
+                <div class="pt-4 flex flex-col sm:flex-row items-center justify-between gap-4">
+                    <span id="formStatus" class="text-xs font-bold text-malawiGreen"></span>
+                    <button type="submit" class="w-full sm:w-auto bg-gradient-to-r from-malawiGreen to-emerald-700 hover:from-emerald-700 hover:to-emerald-800 text-white font-extrabold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-700/30 transition transform hover:-translate-y-0.5 text-sm">
+                        <i class="fa-solid fa-floppy-disk mr-2"></i> Register Free Address
+                    </button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="bg-gray-900 text-white pt-16 pb-12">
+        <div class="tricolor-stripe mb-12"></div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-4 gap-8 mb-12">
+            <div class="space-y-4">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-malawiRed flex items-center justify-center text-white">
+                        <i class="fa-solid fa-location-dot"></i>
+                    </div>
+                    <span class="text-lg font-extrabold">A+Malawi GIS</span>
+                </div>
+                <p class="text-xs text-gray-400">Simple. Secure. 100% Free for Everyone. Mapping Malawi together for a connected future.</p>
+            </div>
+            <div>
+                <h4 class="text-sm font-extrabold uppercase tracking-wider mb-4 text-malawiGold">Quick Links</h4>
+                <ul class="space-y-2 text-xs text-gray-400 font-medium">
+                    <li><a href="#home" class="hover:text-white transition">Home</a></li>
+                    <li><a href="#explore" class="hover:text-white transition">Explore Map</a></li>
+                    <li><a href="#register" class="hover:text-white transition">Register Address</a></li>
+                    <li><a href="#services" class="hover:text-white transition">Services</a></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-sm font-extrabold uppercase tracking-wider mb-4 text-malawiGold">National Impact</h4>
+                <ul class="space-y-2 text-xs text-gray-400 font-medium">
+                    <li><span class="text-white font-bold">Every Place Matters</span></li>
+                    <li><span class="text-white font-bold">Every Malawian Counts</span></li>
+                    <li><span class="text-white font-bold">A Connected Malawi</span></li>
+                </ul>
+            </div>
+            <div>
+                <h4 class="text-sm font-extrabold uppercase tracking-wider mb-4 text-malawiGold">Contact & Support</h4>
+                <p class="text-xs text-gray-400">Lilongwe, Capital City, Malawi</p>
+                <p class="text-xs text-gray-400 mt-1">support@aplusmalawi.gis</p>
+                <div class="flex space-x-4 mt-4 text-sm">
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fa-brands fa-facebook"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fa-brands fa-x-twitter"></i></a>
+                    <a href="#" class="text-gray-400 hover:text-white"><i class="fa-brands fa-whatsapp"></i></a>
+                </div>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 border-t border-gray-800 pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-gray-500">
+            <p>&copy; 2026 A+Malawi GIS Addressing Platform. All rights reserved. 100% Free National Service.</p>
+            <div class="flex space-x-6 mt-4 sm:mt-0">
+                <a href="#" class="hover:text-gray-400">Privacy Policy</a>
+                <a href="#" class="hover:text-gray-400">Terms of Service</a>
+                <a href="#" class="hover:text-gray-400">Contact Us</a>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script>
+        // Initialize Leaflet Map centered on Malawi (Lilongwe)
+        const map = L.map('map').setView([-13.9626, 33.7741], 7);
+
+        // Add OpenStreetMap tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '&copy; OpenStreetMap contributors | A+Malawi GIS'
+        }).addTo(map);
+
+        // Add default Malawi hubs
+        const malawiHubs = [
+            { name: "Lilongwe (Capital City)", lat: -13.9626, lng: 33.7741, type: "Capital" },
+            { name: "Blantyre (Commercial Hub)", lat: -15.7861, lng: 35.0058, type: "Commercial" },
+            { name: "Mzuzu (Northern Hub)", lat: -11.4585, lng: 34.0210, type: "Regional" },
+            { name: "Zomba (Historical City)", lat: -15.3833, lng: 35.3333, type: "Historical" },
+            { name: "Lake Malawi (Senga Bay)", lat: -13.7167, lng: 34.3833, type: "Geographical" }
+        ];
+
+        malawiHubs.forEach(hub => {
+            L.marker([hub.lat, hub.lng]).addTo(map)
+              .bindPopup(`<b>${hub.name}</b><br>Type: ${hub.type}<br>Status: Active Free GIS Node`);
+        });
+
+        // Allow clicking on map to pick coordinates for registration
+        map.on('click', function(e) {
+            const lat = e.latlng.lat.toFixed(4);
+            const lng = e.latlng.lng.toFixed(4);
+            document.getElementById('lat').value = lat;
+            document.getElementById('lng').value = lng;
+            document.getElementById('latLngInput').value = `${lat}, ${lng}`;
+            
+            // Scroll smoothly to registration form
+            document.getElementById('register').scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // Handle Form Submission to Python Backend API Gateway (`/api/register`)
+        document.getElementById('addressRegistrationForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const statusEl = document.getElementById('formStatus');
+            statusEl.textContent = "Registering with national database...";
+
+            const payload = {
+                fullName: document.getElementById('fullName').value,
+                phone: document.getElementById('phone').value,
+                addressType: document.getElementById('addressType').value,
+                region: document.getElementById('region').value,
+                lat: document.getElementById('lat').value,
+                lng: document.getElementById('lng').value
+            };
+
+            try {
+                const response = await fetch('/api/register', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const result = await response.json();
+
+                if (result.success) {
+                    statusEl.textContent = `Success! Address Code: ${result.addressCode}`;
+                    alert(`Address Registered Successfully (Free Service)!\nYour Unique Malawi Address Code is: ${result.addressCode}`);
+                    document.getElementById('addressRegistrationForm').reset();
+                } else {
+                    statusEl.textContent = `Error: ${result.message}`;
+                }
+            } catch (err) {
+                console.error(err);
+                statusEl.textContent = "Connection error to local gateway.";
+            }
+        });
+
+        function performHeroSearch() {
+            const query = document.getElementById('heroSearchInput').value;
+            if(!query) {
+                alert("Please enter an address code or location name to search.");
+                return;
+            }
+            alert(`Searching national GIS database for: "${query}"...`);
+        }
+    </script>
+</body>
+</html>

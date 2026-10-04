@@ -1,0 +1,44 @@
+[
+    {
+        "id": "LL-A25-P102",
+        "address_code": "LL/25/102",
+        "neighborhood": "Area 25 Sector 2",
+        "coordinates": {
+            "latitude": -13.8942,
+            "longitude": 33.7911
+        },
+        "visual_identifiers": {
+            "gate": "Black sliding gate with spikes",
+            "wall_or_fence": "Red brick perimeter wall",
+            "primary_landmark": "Opposite Chipiku Stores"
+        }
+    },
+    {
+        "id": "LL-MELD-P42",
+        "address_code": "LL/49/M42",
+        "neighborhood": "Melody (Area 49)",
+        "coordinates": {
+            "latitude": -13.9215,
+            "longitude": 33.7654
+        },
+        "visual_identifiers": {
+            "gate": "Brown wooden double gate",
+            "wall_or_fence": "White concrete wall with razor wire",
+            "primary_landmark": "Behind the Puma filling station"
+        }
+    },
+    {
+        "id": "LL-A18-P15",
+        "address_code": "LL/18/015",
+        "neighborhood": "Area 18B",
+        "coordinates": {
+            "latitude": -13.9581,
+            "longitude": 33.8102
+        },
+        "visual_identifiers": {
+            "gate": "No gate, open driveway",
+            "wall_or_fence": "Green hedge fence line",
+            "primary_landmark": "Near Area 18 health clinic intersection"
+        }
+    }
+]
